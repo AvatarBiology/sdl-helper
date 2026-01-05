@@ -62,7 +62,7 @@
 
 1.  **Clone 專案**
     ```bash
-    git clone https://github.com/your-username/self-directed-learning-ai.git
+    git clone https://github.com/AvatarBiology/sdl-helper.git
     cd self-directed-learning-ai
     ```
 
