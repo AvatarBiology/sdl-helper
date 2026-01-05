@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自主學習評量助手 | Self-Directed Learning Assessment AI</title>
+    <meta name="description" content="符合台灣高中 108 課綱核心素養設計的 AI 輔助評量工具，採用 Gemini 3.0 Flash 模型進行多模態深度分析。">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0ea5e9', // Sky 500
+                        secondary: '#0f172a', // Slate 900
+                        accent: '#f59e0b', // Amber 500
+                    },
+                    animation: {
+                        'gradient': 'gradient 3s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* 質感背景：深色與微光 */
+        .hero-bg {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.1), transparent 25%),
+                url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+
+        /* 玻璃擬態 2.0 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* 簡單的進入動畫 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-enter {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+
+        html { scroll-behavior: smooth; }
+        
+        /* 隱藏捲軸但保留功能 (Optional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-700 antialiased bg-slate-50 selection:bg-sky-200 selection:text-sky-900">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2 cursor-pointer group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg group-hover:shadow-sky-200 transition-all duration-300 group-hover:rotate-6">
+                        <i class="fa-solid fa-graduation-cap text-sm"></i>
+                    </div>
+                    <span class="font-bold text-xl text-slate-800 tracking-tight group-hover:text-primary transition-colors">自主學習評量助手</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#features" class="text-slate-600 hover:text-primary font-medium text-sm transition py-2 relative group">
+                        核心功能
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#technology" class="text-slate-600 hover:text-primary font-medium text-sm transition py-2 relative group">
+                        分析技術
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#usage" class="text-slate-600 hover:text-primary font-medium text-sm transition py-2 relative group">
+                        使用流程
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                </div>
+                <a href="https://ai.studio/apps/drive/1_qlTH7Xa8XORBb1TQogGjlM0e1yKad07?fullscreenApplet=true" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full text-sm font-medium transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 border border-slate-700">
+                    <span>進入 App</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
+        <!-- 裝飾性光暈 -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-[80px]"></div>
+
+        <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white py-20">
+            
+            <!-- Badges -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8 animate-enter opacity-0">
+                <span class="px-4 py-1.5 rounded-full bg-slate-800/40 border border-slate-600/50 text-xs font-medium text-slate-200 backdrop-blur-md shadow-lg flex items-center gap-2 hover:bg-slate-800/60 transition cursor-default">
+                    <i class="fa-brands fa-react text-sky-400"></i> React 19.0
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-slate-800/40 border border-slate-600/50 text-xs font-medium text-slate-200 backdrop-blur-md shadow-lg flex items-center gap-2 hover:bg-slate-800/60 transition cursor-default">
+                    <i class="fa-brands fa-google text-orange-400"></i> Gemini 3.0 Flash
+                </span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight animate-enter delay-100 opacity-0 tracking-tight drop-shadow-2xl">
+                Self-Directed Learning<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-sky-400 bg-[length:200%_auto] animate-[gradient_3s_linear_infinite]">
+                    Assessment AI
+                </span>
+            </h1>
+           
+            <p class="text-lg md:text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed animate-enter delay-200 opacity-0 font-light">
+                符合 108 課綱素養評量設計。採用 Google 最新<strong class="text-white font-medium"> Gemini 3 多模態模型</strong> 驅動，能夠雙軌分析文字與圖表，並提供具備<strong class="text-white font-medium">鷹架理論</strong>的引導式回饋，讓評量精準而有溫度。
+            </p>
+
+            <div class="flex flex-col items-center gap-6 animate-enter delay-300 opacity-0">
+                <a href="https://ai.studio/apps/drive/1_qlTH7Xa8XORBb1TQogGjlM0e1yKad07?fullscreenApplet=true" 
+                   target="_blank"
+                   class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-300 bg-gradient-to-r from-primary to-sky-600 rounded-full hover:scale-105 hover:shadow-[0_0_40px_rgba(14,165,233,0.6)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-slate-900 border border-sky-400/30">
+                    <i class="fa-brands fa-google mr-3 text-xl"></i>
+                    <span>立即開始評量</span>
+                    <i class="fa-solid fa-arrow-right ml-2 opacity-70 group-hover:translate-x-1 transition-transform"></i>
+                    
+                    <!-- 按鈕內光效 -->
+                    <div class="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md"></div>
+                </a>
+                
+                <p class="text-sm text-slate-400 flex items-center gap-2 bg-slate-800/30 px-4 py-2 rounded-full border border-slate-700/50 backdrop-blur-sm">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                    隱私保護設計・僅需 Google 帳號
+                </p>
+            </div>
+        </div>
+        
+        <!-- 底部波浪裝飾 (SVG) -->
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
+            <svg class="relative block w-[calc(100%+1.3px)] h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-slate-50"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Features Section (Bento Grid) -->
+    <section id="features" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">AI 不只是閱讀，更是「看見」</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto text-lg">深入分析實作歷程與圖表邏輯，解構並分析學生學習的真實樣貌。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="group relative p-8 bg-white rounded-3xl shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-sky-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-2xl bg-sky-100 text-primary flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">多模態的視覺分析</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            系統不只能讀取完整文字內容，更具備<span class="text-primary font-medium">視覺認知能力</span>。能檢查數據圖表的邏輯、實驗照片合理性，並評估排版美學。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="group relative p-8 bg-white rounded-3xl shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-amber-600 transition-colors">智慧歸類與評量</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            自動識別自主學習屬於「自然科學」、「社會人文」或其他「實作專案」類別，動態調整符合 <span class="text-amber-600 font-medium">108課綱素養評量的規準</span>，確保評量信度。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="group relative p-8 bg-white rounded-3xl shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                            <!-- 修正 Icon: fa-chart-radar (Pro) -> fa-chart-pie (Free) -->
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-emerald-600 transition-colors">結構化回饋報告</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            生成五大向度分析雷達圖、清晰列出具體亮點與改進方向，並生成學習歷程檔案上傳時需要的<span class="text-emerald-600 font-medium">「大學申請百字簡述」</span>。最後附上總結評語和學術倫理檢核。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section (Timeline Visualization) -->
+    <section id="technology" class="py-24 bg-white relative overflow-hidden">
+        <!-- 背景裝飾線條 -->
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+        <div class="absolute -right-20 top-40 w-96 h-96 bg-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="lg:flex lg:items-start lg:gap-20">
+                <!-- 左側：圖片區 (Updated Source) -->
+                <div class="lg:w-1/2 mb-16 lg:mb-0 lg:sticky lg:top-24">
+                    <div class="relative rounded-2xl shadow-2xl overflow-hidden border border-slate-100 bg-slate-900 group">
+                        <!-- 使用更新後的圖片連結 -->
+                        <img src="https://i.meee.com.tw/IaC7t4c.png" alt="分析技術示意圖" class="w-full h-auto object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition duration-700 transform">
+                        <!-- 覆蓋層 -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white w-full">
+                            <div class="flex items-center gap-2 text-sky-400 mb-2">
+                                <i class="fa-solid fa-microchip animate-pulse"></i>
+                                <span class="text-xs font-mono uppercase tracking-widest">Core Architecture</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：技術流程 -->
+                <div class="lg:w-1/2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-sky-50 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-6 border border-sky-100">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                        </span>
+                        Exclusive Tech
+                    </div>
+                    
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">突破 Token 限制的<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">智慧採樣演算法</span></h2>
+                    <p class="text-slate-600 mb-12 leading-relaxed text-lg">
+                        設計 PDF 結構掃描引擎「視覺權重」過濾器，解決 AI 模型解析圖片之 Context Window 有限的問題。這項技術能完美平衡數據容量上限與分析完整度，確保即使上傳長篇報告，也能精準讀取圖片重點，達成文字與圖片的雙軌分析。
+                    </p>
+
+                    <!-- 垂直流程圖 -->
+                    <div class="relative space-y-12 pl-4">
+                        <!-- 連接線 -->
+                        <div class="absolute left-[27px] top-4 bottom-8 w-0.5 bg-gradient-to-b from-slate-200 via-slate-200 to-transparent"></div>
+
+                        <!-- Step 1 -->
+                        <div class="relative flex gap-8 group">
+                            <div class="relative z-10 w-14 h-14 flex-shrink-0 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 shadow-md group-hover:border-primary group-hover:text-primary group-hover:shadow-primary/30 transition-all duration-300">
+                                <i class="fa-solid fa-file-lines text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">全文語意提取</h4>
+                                <p class="text-slate-500 mt-2 leading-relaxed">
+                                    無損提取全篇 PDF 內的純文字內容，建立基礎語意理解架構，不遺漏任何文字細節、完整分析。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="relative flex gap-8 group">
+                            <div class="relative z-10 w-14 h-14 flex-shrink-0 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 shadow-md group-hover:border-primary group-hover:text-primary group-hover:shadow-primary/30 transition-all duration-300">
+                                <i class="fa-solid fa-filter text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">視覺權重運算</h4>
+                                <p class="text-slate-500 mt-2 leading-relaxed">
+                                    針對每一頁計算 <span class="bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-mono text-xs border border-slate-200">Visual_Score</span>。自動偵測圖表密集度，區分「無效頁面」與「精華頁面」。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="relative flex gap-8 group">
+                            <div class="relative z-10 w-14 h-14 flex-shrink-0 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 shadow-md group-hover:border-primary group-hover:text-primary group-hover:shadow-primary/30 transition-all duration-300">
+                                <i class="fa-solid fa-crosshairs text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">黃金 15 頁圖表鎖定</h4>
+                                <p class="text-slate-500 mt-2 leading-relaxed">
+                                    強制鎖定封面與目錄，並動態挑選分數最高的關鍵頁面傳送至 Gemini，實現關鍵圖表頁面的精準提取與分析。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Steps (Cleaned up) -->
+    <section id="usage" class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900">簡單四步驟，獲取專業報告</h2>
+                <p class="text-slate-500 mt-3 text-lg">Process Flow</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="relative text-center group">
+                    <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center border-2 border-slate-200 group-hover:border-primary group-hover:text-primary transition-all duration-300 shadow-sm mb-6 group-hover:scale-110">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 group-hover:text-primary transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">1. 上傳檔案</h3>
+                    <p class="text-sm text-slate-500 px-4">上傳 PDF 格式的自主學習檔案，建議包含豐富圖表。</p>
+                    <!-- Connector line -->
+                    <div class="hidden md:block absolute top-10 -right-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative text-center group">
+                    <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center border-2 border-slate-200 group-hover:border-primary group-hover:text-primary transition-all duration-300 shadow-sm mb-6 group-hover:scale-110 animate-[float_4s_ease-in-out_infinite] animation-delay-200">
+                        <i class="fa-solid fa-wand-magic-sparkles text-3xl text-slate-400 group-hover:text-primary transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">2. 等待分析</h3>
+                    <p class="text-sm text-slate-500 px-4">系統提取文字並智慧挑選視覺精華頁面傳送至 Gemini。</p>
+                    <div class="hidden md:block absolute top-10 -right-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative text-center group">
+                    <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center border-2 border-slate-200 group-hover:border-primary group-hover:text-primary transition-all duration-300 shadow-sm mb-6 group-hover:scale-110">
+                        <i class="fa-solid fa-file-contract text-3xl text-slate-400 group-hover:text-primary transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">3. 檢視報告</h3>
+                    <p class="text-sm text-slate-500 px-4">查看雷達圖、具體建議與百字簡述範例。</p>
+                    <div class="hidden md:block absolute top-10 -right-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center border-2 border-slate-200 group-hover:border-primary group-hover:text-primary transition-all duration-300 shadow-sm mb-6 group-hover:scale-110">
+                        <i class="fa-solid fa-file-pdf text-3xl text-slate-400 group-hover:text-primary transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">4. 下載存檔</h3>
+                    <p class="text-sm text-slate-500 px-4">一鍵下載 PDF 報告存檔，或重新測試下一份檔案。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start mb-12">
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                             <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <span class="font-bold text-2xl text-white tracking-wide">自主學習評量助手</span>
+                    </div>
+                    <p class="text-sm text-slate-400 max-w-md leading-relaxed mb-6">
+                        本專案採 MIT License 開源，期望 AI 讓教育評量更客觀、更具啟發性。<br>
+                        評分規準參考台灣 108 課綱自主學習核心素養設計。
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/AvatarBiology" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary hover:text-white transition-all duration-300">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <!-- Trigger Button -->
+                        <button onclick="openContactModal()" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary hover:text-white transition-all duration-300 group relative">
+                            <i class="fa-solid fa-envelope"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:items-end justify-center h-full">
+                     <a href="https://ai.studio/apps/drive/1_qlTH7Xa8XORBb1TQogGjlM0e1yKad07?fullscreenApplet=true" target="_blank" class="text-slate-400 hover:text-white transition mb-4">
+                        前往應用程式 <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+                     </a>
+                     <div class="text-sm text-slate-500 text-right">
+                         <p>版本 v2.3.0</p>
+                         <p>最後更新：2026/01</p>
+                     </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p>&copy; 2026 Avatar Biology. Developed with <i class="fa-solid fa-heart text-red-500 mx-1 animate-pulse"></i> for Education.</p>
+                <div class="mt-4 md:mt-0 flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                    <span class="text-slate-500"><i class="fa-solid fa-circle-info mr-1"></i>Disclaimer:</span>
+                    <span>AI 評量結果僅供輔助參考，正式成績應以授課教師評分為準。</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0 duration-300 ease-out" id="modalBackdrop"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <!-- Modal Panel -->
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm scale-95 opacity-0 duration-300 ease-out" id="modalPanel">
+                    <!-- Close Button -->
+                    <button onclick="closeContactModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors z-20">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+
+                    <div class="bg-white px-4 pb-4 pt-8 sm:p-8">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sky-50 mb-6">
+                                <i class="fa-solid fa-envelope text-2xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-bold leading-6 text-slate-900 mb-2" id="modal-title">歡迎聯絡與交流</h3>
+                            <p class="text-sm text-slate-500 mb-6">我們期待聽到您的聲音</p>
+                            
+                            <div class="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 flex flex-col items-center justify-center group hover:border-primary/30 transition-colors relative cursor-pointer" onclick="copyEmailToClipboard()">
+                                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1">E-mail</p>
+                                <p class="text-lg font-bold text-slate-800 select-all font-mono break-all">avatarbiology@gmail.com</p>
+                                
+                                <!-- Copy Hint -->
+                                <div class="mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    <i class="fa-regular fa-copy"></i> 點擊複製
+                                </div>
+                            </div>
+                            <div id="copySuccess" class="h-4 mt-2 text-xs text-emerald-500 font-medium opacity-0 transition-opacity flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> 已複製到剪貼簿
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function openContactModal() {
+            const modal = document.getElementById('contactModal');
+            const backdrop = document.getElementById('modalBackdrop');
+            const panel = document.getElementById('modalPanel');
+            
+            modal.classList.remove('hidden');
+            // Force reflow
+            void modal.offsetWidth;
+            
+            backdrop.classList.remove('opacity-0');
+            panel.classList.remove('scale-95', 'opacity-0');
+            panel.classList.add('scale-100', 'opacity-100');
+        }
+
+        function closeContactModal() {
+            const modal = document.getElementById('contactModal');
+            const backdrop = document.getElementById('modalBackdrop');
+            const panel = document.getElementById('modalPanel');
+
+            backdrop.classList.add('opacity-0');
+            panel.classList.remove('scale-100', 'opacity-100');
+            panel.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // Reset copy message
+                document.getElementById('copySuccess').classList.add('opacity-0');
+            }, 300);
+        }
+
+        // Close on backdrop click
+        document.getElementById('contactModal').addEventListener('click', function(e) {
+            // If click is on the wrapper (which covers screen) and not inside the panel
+            if (!document.getElementById('modalPanel').contains(e.target)) {
+               closeContactModal();
+            }
+        });
+        
+        function copyEmailToClipboard() {
+            const email = "avatarbiology@gmail.com";
+            // Use fallback for better compatibility if navigator fails or is restricted
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(email).then(showSuccess).catch(err => console.error('Copy failed', err));
+            } else {
+                // Fallback
+                const textArea = document.createElement("textarea");
+                textArea.value = email;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function showSuccess() {
+            const successMsg = document.getElementById('copySuccess');
+            successMsg.classList.remove('opacity-0');
+            setTimeout(() => {
+                successMsg.classList.add('opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
