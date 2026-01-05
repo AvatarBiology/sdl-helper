@@ -1,4 +1,4 @@
-# 108課綱自主學習評量助手 (Self-Directed Learning Assessment AI)
+# 自主學習評量助手 (Self-Directed Learning Assessment AI)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.0-blue)
@@ -52,7 +52,7 @@
 *   **Visualization**: Recharts (Radar Chart)
 *   **Icons**: Lucide React
 
-## 🚀 安裝與執行 (Getting Started)
+## 🚀 本地安裝與執行 (Getting Started)
 
 ### 前置需求
 *   Node.js (v18+)
